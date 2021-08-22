@@ -14,7 +14,7 @@ app.get("/products/:id", (req, res) => {
   const { id } = req.params;
   fs.readFile("./products.json", "utf8", (err, data) => {
     const products = JSON.parse(data);
-    const product = products.find((a) => a.id == id);
+    const product = products.find((a) => a.id === id);
     res.send(product);
   });
 });
