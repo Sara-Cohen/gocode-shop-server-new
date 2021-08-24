@@ -1,8 +1,24 @@
 const fs = require("fs");
+
 const express = require("express");
+
 const app = express();
+
 const { v4: uuidv4 } = require("uuid");
+
+const mongoose = require("mongoose");
 app.use(express.json());
+
+const productSchema = new mongoose.Schema({
+  id: String,
+  title: String,
+  price: String,
+  description: String,
+  category: String,
+  image: String,
+});
+
+const Product = mongoose.model("Product", productSchema);
 
 app.get("/", (req, res) => {
   res.send("hello");
@@ -22,27 +38,30 @@ app.get("/products/:id", (req, res) => {
     res.send(product);
   });
 });
-app.listen(8000);
 
 app.post("/products", (req, res) => {
-  const { title } = req.body;
-  const { price } = req.body;
-  const { description } = req.body;
-  const { category } = req.body;
-  const { image } = req.body;
-  res.send("check");
-
-  fs.readFile("./products.json", "utf8", (err, data) => {
-    const products = JSON.parse(data);
-    const newProduct = {
-      id: uuidv4(),
-      title,
-      price,
-      description,
-      category,
-      image,
-    };
-    products.push(newProduct);
-    fs.writeFile("./products.json", JSON.stringify(products), (err) => {});
+  const { title, price, description, category, image } = req.body;
+  const product = new Product({
+    id: uuidv4(),
+    title,
+    price,
+    description,
+    category,
+    image,
   });
+
+  product.save();
+  res.send("OK!");
 });
+
+mongoose.connect(
+  "mongodb://localhost/gocode_shop",
+  {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+  },
+  () => {
+    app.listen(8000);
+  }
+);
