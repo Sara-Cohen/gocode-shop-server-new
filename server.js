@@ -25,19 +25,22 @@ app.get("/products/:id", (req, res) => {
 app.listen(8000);
 
 app.post("/products", (req, res) => {
-  res.send("check");
   const { title } = req.body;
+  const { price } = req.body;
+  const { description } = req.body;
+  const { category } = req.body;
+  const { image } = req.body;
+  res.send("check");
+
   fs.readFile("./products.json", "utf8", (err, data) => {
     const products = JSON.parse(data);
     const newProduct = {
-      //  id: uuidv4(),
-      id: products.length + 1,
+      id: uuidv4(),
       title,
-      price: 39,
-      description: "beautiful jewelry",
-      category: "jewelery",
-      image:
-        "https://cashcow-cdn.azureedge.net/images/a45bec16-b540-45c5-9915-b5d14f42e467.jpg",
+      price,
+      description,
+      category,
+      image,
     };
     products.push(newProduct);
     fs.writeFile("./products.json", JSON.stringify(products), (err) => {});
