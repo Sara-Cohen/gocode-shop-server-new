@@ -6,19 +6,7 @@ const app = express();
 
 const { v4: uuidv4 } = require("uuid");
 
-const mongoose = require("mongoose");
 app.use(express.json());
-
-const productSchema = new mongoose.Schema({
-  id: String,
-  title: String,
-  price: String,
-  description: String,
-  category: String,
-  image: String,
-});
-
-const Product = mongoose.model("Product", productSchema);
 
 app.get("/", (req, res) => {
   res.send("hello");
@@ -34,34 +22,85 @@ app.get("/products/:id", (req, res) => {
   const { id } = req.params;
   fs.readFile("./products.json", "utf8", (err, data) => {
     const products = JSON.parse(data);
-    const product = products.find((a) => a.id === id);
-    res.send(product);
+    const product = products.find((product) => product.id === id);
+    if (product) {
+      res.send(product);
+    } else {
+      res.send("Product not found!");
+    }
   });
 });
+
+app.listen(8000);
 
 app.post("/products", (req, res) => {
   const { title, price, description, category, image } = req.body;
-  const product = new Product({
-    id: uuidv4(),
-    title,
-    price,
-    description,
-    category,
-    image,
-  });
-
-  product.save();
-  res.send("OK!");
+  if (
+    title === "" ||
+    price === "" ||
+    description === "" ||
+    category === "" ||
+    image === ""
+  ) {
+    res.send(
+      "Missing details about the product, the product was not added to the database!"
+    );
+  } else {
+    fs.readFile("./products.json", "utf8", (err, data) => {
+      const products = JSON.parse(data);
+      const newProduct = {
+        id: uuidv4(),
+        title,
+        price,
+        description,
+        category,
+        image,
+      };
+      products.push(newProduct);
+      fs.writeFile("./products.json", JSON.stringify(products), (err) => {});
+    });
+    res.send("The Product added successfully!");
+  }
 });
 
-mongoose.connect(
-  "mongodb://localhost/gocode_shop",
-  {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-  },
-  () => {
-    app.listen(8000);
-  }
-);
+app.put("/products/:id", (req, res) => {
+  const { id } = req.params;
+  const { title, price, description, category, image } = req.body;
+  fs.readFile("./products.json", "utf8", (err, data) => {
+    const products = JSON.parse(data);
+    const product = products.find((product) => product.id === id);
+    if (product) {
+      product.title = title;
+      product.price = price;
+      product.description = description;
+      product.category = category;
+      product.image = image;
+      fs.writeFile("./products.json", JSON.stringify(products), (err) => {});
+      res.send("The product has been updated!");
+    } else {
+      res.send("Product not found, no data updated!");
+    }
+  });
+});
+
+app.delete("/products/:id", (req, res) => {
+  const { id } = req.params;
+  fs.readFile("./products.json", "utf8", (err, data) => {
+    const products = JSON.parse(data);
+    const product = products.find((product) => product.id === id);
+    if (product) {
+      const updateProducts = products.filter((product) => product.id !== id);
+      fs.writeFile(
+        "./products.json",
+        JSON.stringify(updateProducts),
+        (err) => {}
+      );
+      //       const productIndex = products.findIndex((product) => product.id === id);
+      //       products.splice(productIndex, 1);
+      //       fs.writeFile("./products.json", JSON.stringify(products), (err) => {});
+      res.send("The product has deleted!");
+    } else {
+      res.send("Product not found");
+    }
+  });
+});
