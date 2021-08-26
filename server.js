@@ -12,12 +12,6 @@ app.get("/", (req, res) => {
   res.send("hello");
 });
 
-app.get("/products", (req, res) => {
-  fs.readFile("./products.json", "utf8", (err, data) => {
-    res.send(JSON.parse(data));
-  });
-});
-
 app.get("/products/:id", (req, res) => {
   const { id } = req.params;
   fs.readFile("./products.json", "utf8", (err, data) => {
@@ -30,8 +24,6 @@ app.get("/products/:id", (req, res) => {
     }
   });
 });
-
-app.listen(8000);
 
 app.post("/products", (req, res) => {
   const { title, price, description, category, image } = req.body;
@@ -104,3 +96,45 @@ app.delete("/products/:id", (req, res) => {
     }
   });
 });
+
+app.get("/products", (req, res) => {
+  fs.readFile("./products.json", "utf8", (err, data) => {
+    if (err) {
+      fs.writeFile("products.json", "utf8", (err) => {});
+      res.send("Not found");
+    } else {
+      const { title, description, category, min, max } = req.query;
+      let products = JSON.parse(data);
+      if (title) {
+        products = products.filter((product) =>
+          product.title
+            ? product.title.toLowerCase().includes(title.toLocaleLowerCase())
+            : false
+        );
+      }
+      if (description) {
+        products = products.filter((product) =>
+          product.description
+            ? product.description
+                .toLowerCase()
+                .includes(description.toLocaleLowerCase())
+            : false
+        );
+      }
+      if (category) {
+        products = products.filter((product) =>
+          product.category ? product.category.includes(category) : false
+        );
+      }
+      if (min) {
+        products = products.filter((product) => product.price >= min);
+      }
+      if (max) {
+        products = products.filter((product) => product.price <= max);
+      }
+      res.send(products);
+    }
+  });
+});
+
+app.listen(8000);
