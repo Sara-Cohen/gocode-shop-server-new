@@ -142,19 +142,19 @@ mongoose.connect(
     app.listen(8000);
   }
 );
-// function initProducts() {
-//   Product.findOne((err, product) => {
-//     if (!product) {
-//       fs.readFile("/initialProducts.json", "utf80", (err, data) => {
-//         let initialProducts = JSON.parse(data);
-//         initialProducts = initialProducts.map((product) => ({
-//           ...product,
-//           id: uuidv4(),
-//         }));
-//         Product.insertMany(initialProducts, (err, products) => {});
-//       });
-//     }
-//   });
-// }
+function initProducts() {
+  Product.findOne((err, product) => {
+    if (!product) {
+      fs.readFile("initialProducts.json", "utf8", (err, data) => {
+        let initialProducts = JSON.parse(data);
+        initialProducts = initialProducts.map((product) => ({
+          ...product,
+          id: uuidv4(),
+        }));
+        Product.insertMany(initialProducts, (err, products) => {});
+      });
+    }
+  });
+}
 
-// initProducts();
+initProducts();
