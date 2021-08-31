@@ -12,6 +12,8 @@ const cors = require("cors");
 
 app.use(cors());
 
+require("dotenv").config();
+
 const productSchema = new mongoose.Schema({
   id: String,
   title: String,
@@ -133,7 +135,7 @@ app.get("/products", (req, res) => {
 });
 
 mongoose.connect(
-  "mongodb+srv://sara:cohen@cluster0.7mnns.mongodb.net/gocode_shop?retryWrites=true&w=majority",
+  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
     useCreateIndex: true,
