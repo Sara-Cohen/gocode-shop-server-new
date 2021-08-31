@@ -4,8 +4,6 @@ const express = require("express");
 
 const app = express();
 
-const { v4: uuidv4 } = require("uuid");
-
 const mongoose = require("mongoose");
 
 app.use(express.json());
@@ -54,7 +52,6 @@ app.post("/products", (req, res) => {
     );
   } else {
     const product = new Product({
-      id: uuidv4(),
       title,
       price,
       description,
@@ -152,7 +149,6 @@ function initProducts() {
       fs.readFile("initialProducts.json", "utf8", (err, data) => {
         let initialProducts = JSON.parse(data);
         initialProducts = initialProducts.map((product) => ({
-          id: uuidv4(),
           ...product,
         }));
         Product.insertMany(initialProducts, (err, products) => {});
