@@ -10,6 +10,10 @@ const mongoose = require("mongoose");
 
 app.use(express.json());
 
+const cors = require("cors");
+
+app.use(cors());
+
 const productSchema = new mongoose.Schema({
   id: String,
   title: String,
@@ -132,7 +136,7 @@ app.get("/products", (req, res) => {
 });
 
 mongoose.connect(
-  "mongodb://localhost/gocode_shop",
+  "mongodb+srv://sara:cohen@cluster0.7mnns.mongodb.net/gocode_shop?retryWrites=true&w=majority",
   {
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -148,8 +152,8 @@ function initProducts() {
       fs.readFile("initialProducts.json", "utf8", (err, data) => {
         let initialProducts = JSON.parse(data);
         initialProducts = initialProducts.map((product) => ({
-          ...product,
           id: uuidv4(),
+          ...product,
         }));
         Product.insertMany(initialProducts, (err, products) => {});
       });
